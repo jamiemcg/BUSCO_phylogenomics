@@ -16,7 +16,7 @@ This pipeline runs directly on the output from BUSCO. Move results directories f
 	* ........
 
 
-The majority of steps are parallelizable (e.g. family alignments) so running the pipeline with multiple threads leads to a dramatic descrease in runtime.
+The majority of steps are parallelizable (e.g. family alignments) so running the pipeline with multiple threads leads to a dramatic decrease in runtime.
 
 ### Usage
 	python BUSCO_Phylogenomics.py -d INPUT_DIRECTORY -o OUTPUT_DIRECTORY --supermatrix --threads 20
