@@ -50,7 +50,7 @@ def main():
     parser.add_argument("-d", "--directory", type=str, help="Directory containing completed BUSCO runs", required=True)
     parser.add_argument("-o", "--output", type=str, help="Output directory to store results", required=True)
     parser.add_argument("-psc", "--percent_single_copy", type=float, action="store", dest="psc",
-                        help="BUSCOs that are present and single copy in N% of species will be included in the "
+                        help="BUSCOs that are present and single copy in N percent of species will be included in the "
                              "concatenated alignment")
     parser.add_argument("--stop_early",
                         help="Stop pipeline early after generating datasets (before phylogeny inference)",
