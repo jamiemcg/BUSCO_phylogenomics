@@ -66,10 +66,10 @@ def main():
 
     if args.psc is None:
         percent_single_copy = 100
-        print percent_single_copy
+        print(percent_single_copy)
     else:
         percent_single_copy = float(args.psc)
-        print percent_single_copy
+        print(percent_single_copy)
 
     if not supermatrix and not supertree:
         print("Error! Please select at least one of '--supermatrix' or '--supertree'")
