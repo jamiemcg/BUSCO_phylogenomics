@@ -6,6 +6,8 @@ Utility script to construct species phylogenies using BUSCOs. Works directly fro
 
 This pipeline runs directly on the output from BUSCO. Move results directories from each BUSCO run (begins with "run_" by default) into the same directory. Example structure, where `INPUT_DIRECTORY` is passed to the `-d` parameter of the pipeline:
 
+**Doesn't work with BUSCO4?**
+
 * INPUT_DIRECTORY
 	* run_species1
 	* run_species2
