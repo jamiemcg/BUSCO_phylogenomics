@@ -5,15 +5,16 @@
 # 
 # Reports how many species a BUSCO family was found to be single copy in
 # ONLY LOOKS AT SINGLE COPIES, IGNORES IF PRESENT AS MULTI COPY
-# Usage: python count_frequency_busco_family.py busco_working_directory
+# Usage: python count_frequency_busco_family.py busco_working_directory lineage
 
 import os, sys
 	
-if len(sys.argv) < 2:
-	print("Usage: python count_frequency_busco_family.py busco_working_directory")
+if len(sys.argv) < 3:
+	print("Usage: python count_frequency_busco_family.py busco_working_directory lineage")
 	sys.exit(0)
 
 working_directory = os.path.abspath(sys.argv[1])
+lineage = sys.argv[2]
 
 busco_dirs = []
 
@@ -39,6 +40,8 @@ for directory in busco_dirs:
 	buscos = []
 
 	os.chdir(directory)
+	os.chdir("run_" + lineage)
+	os.chdir("busco_sequences")
 	os.chdir("single_copy_busco_sequences")
 
 

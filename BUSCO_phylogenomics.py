@@ -49,6 +49,7 @@ def main():
     parser.add_argument("-t", "--threads", type=int, help="Number of threads to use", required=True)
     parser.add_argument("-d", "--directory", type=str, help="Directory containing completed BUSCO runs", required=True)
     parser.add_argument("-o", "--output", type=str, help="Output directory to store results", required=True)
+    parser.add_argument("-l", "--lineage", type=str, help="Name of lineage used to run BUSCO", required=True)
     parser.add_argument("-psc", "--percent_single_copy", type=float, action="store", dest="psc",
                         help="BUSCOs that are present and single copy in N percent of species will be included in the "
                              "concatenated alignment")
@@ -63,6 +64,7 @@ def main():
     supermatrix = args.supermatrix
     supertree = args.supertree
     stop_early = args.stop_early
+    lineage = args.lineage
 
     if args.psc is None:
         percent_single_copy = 100
@@ -117,10 +119,15 @@ def main():
         all_species.append(species)
 
         os.chdir(directory)
+        os.chdir("run_" + lineage)
+        os.chdir("busco_sequences")
         os.chdir("single_copy_busco_sequences")
+        
+        print(species)
 
         for busco in os.listdir("."):
             if busco.endswith(".faa"):
+                print(busco)
                 busco_name = busco[0:len(busco) - 4]
                 record = SeqIO.read(busco, "fasta")
                 new_record = SeqRecord(Seq(str(record.seq)), id=species, description="")
