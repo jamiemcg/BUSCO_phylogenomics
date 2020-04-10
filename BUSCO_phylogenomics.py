@@ -323,10 +323,10 @@ def main():
                     check_species.remove(str(record.id))
 
                 if len(check_species) > 0:
-                    # There are missing species, fill with N * "-"
+                    # There are missing species, fill with N * "?"
                     seq_len = len(str(record.seq))
                     for species in check_species:
-                        alignments[species] += ("-" * seq_len)
+                        alignments[species] += ("?" * seq_len)
 
         os.chdir(working_directory)
         fo = open("SUPERMATRIX.aln", "w")
