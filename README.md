@@ -1,15 +1,15 @@
 # BUSCO_Phylogenomics
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4320788.svg)](https://doi.org/10.5281/zenodo.4320788)
-
 
 <a href="https://jamiemcgowan.ie" target="_blank">Jamie McGowan - 2020</a>
 
-Utility script to construct species phylogenies using BUSCOs. Works directly from BUSCO output and can be used for supermatrix or supertree methods.
+Utility script to construct species phylogenies using BUSCOs. Works directly from BUSCO output and can be used for supermatrix or supertree/coalescent methods.
+
+![BUSCO Phylogenomics pipeline](./pipeline.png)
 
 This pipeline runs directly on the output from BUSCO. Move results directories from each BUSCO run (begins with "run_" by default) into the same directory. Example structure, where `INPUT_DIRECTORY` is passed to the `-d` parameter of the pipeline:
 
-
+```
 * INPUT_DIRECTORY
 	* run_species1
 	* run_species2
@@ -19,6 +19,8 @@ This pipeline runs directly on the output from BUSCO. Move results directories f
 	* run_species6
 	* ........
 
+```
+
 
 The majority of steps are parallelizable (e.g. family alignments) so running the pipeline with multiple threads leads to a dramatic decrease in runtime.
 
@@ -27,7 +29,7 @@ The majority of steps are parallelizable (e.g. family alignments) so running the
 	
 	
 	
-### Required parameters:
+### Required parameters
 * `-d --directory` input directory containing BUSCO runs
 * `-o --output` output directory
 * `-t --threads` number of threads to use
@@ -36,7 +38,8 @@ The majority of steps are parallelizable (e.g. family alignments) so running the
 
 ### Optional parameters
 * `-psc` BUSCO families that are present and single-copy in N% of species will be included in supermatrix analysis [default = 100%]
-* `--stop_early` stop pipeline early before phylogenetic inference (i.e. for the supermatrix approach this will stop after generating the concatenated alignment and for the supertree approach this will stop after generating the trimmed alignments for each BUSCO family)
+* `--stop_early` stop pipeline early before phylogenetic inference (i.e. for the supermatrix approach this will stop after generating the concatenated alignment). This is recommened so you can choose your own parameters (e.g. bootstrapping methods) when running IQ-Tree, etc..
+
 
 
 ### Requirements
@@ -50,8 +53,13 @@ The majority of steps are parallelizable (e.g. family alignments) so running the
 `muscle`, `trimal` and `iqtree` should be in `$PATH`
 
 
-### Pipeline
-![BUSCO Phylogenomics pipeline](./pipeline.png)
+### Citation
 
+These scripts were initially written to generate species phylogenies for the following publications:
+
+- McGowan, J., & Fitzpatrick, D. A. (2020). Recent advances in oomycete genomics. Advances in Genetics. Academic Press. **DOI: 10.1016/bs.adgen.2020.03.001**
+- McGowan, J., O’Hanlon, R., Owens, R. A., & Fitzpatrick, D. A. (2020). Comparative Genomic and Proteomic Analyses of Three Widespread Phytophthora Species: Phytophthora chlamydospora, Phytophthora gonapodyides and Phytophthora pseudosyringae. Microorganisms, 8(5), 653. **DOI: 10.3390/microorganisms8050653**
+
+If you find this repository useful, consider citing either of the above articles, or the Zenodo DOI for this repository below.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4320788.svg)](https://doi.org/10.5281/zenodo.4320788)
