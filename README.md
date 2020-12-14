@@ -57,8 +57,8 @@ The majority of steps are parallelizable (e.g. family alignments) so running the
 
 These scripts were initially written to generate species phylogenies for the following publications:
 
-- McGowan, J., & Fitzpatrick, D. A. (2020). Recent advances in oomycete genomics. Advances in Genetics. Academic Press. **DOI: 10.1016/bs.adgen.2020.03.001**
-- McGowan, J., O’Hanlon, R., Owens, R. A., & Fitzpatrick, D. A. (2020). Comparative Genomic and Proteomic Analyses of Three Widespread Phytophthora Species: Phytophthora chlamydospora, Phytophthora gonapodyides and Phytophthora pseudosyringae. Microorganisms, 8(5), 653. **DOI: 10.3390/microorganisms8050653**
+- [McGowan, J., & Fitzpatrick, D. A. (2020). Recent advances in oomycete genomics. Advances in Genetics. **DOI: 10.1016/bs.adgen.2020.03.001**](https://www.sciencedirect.com/science/article/abs/pii/S0065266020300043)
+- [McGowan, J., O’Hanlon, R., Owens, R. A., & Fitzpatrick, D. A. (2020). Comparative Genomic and Proteomic Analyses of Three Widespread Phytophthora Species: Phytophthora chlamydospora, Phytophthora gonapodyides and Phytophthora pseudosyringae. Microorganisms, 8(5), 653. **DOI: 10.3390/microorganisms8050653**](https://www.mdpi.com/2076-2607/8/5/653)
 
 If you find this repository useful, consider citing either of the above articles, or the Zenodo DOI for this repository below.
 
