@@ -1,6 +1,9 @@
 # BUSCO-Phylogenomics
 
-<a href="https://jamiemcgowan.ie" target="_blank">Jamie McGowan - 2019</a>
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4320788.svg)](https://doi.org/10.5281/zenodo.4320788)
+
+
+<a href="https://jamiemcgowan.ie" target="_blank">Jamie McGowan - 2020</a>
 
 Utility script to construct species phylogenies using BUSCOs. Works directly from BUSCO output and can be used for supermatrix or supertree methods.
 
@@ -33,7 +36,7 @@ The majority of steps are parallelizable (e.g. family alignments) so running the
 
 ### Optional parameters
 * `-psc` BUSCO families that are present and single-copy in N% of species will be included in supermatrix analysis [default = 100%]
-* `--stop_early` stop pipeline early before phylogenetic inference
+* `--stop_early` stop pipeline early before phylogenetic inference (i.e. for the supermatrix approach this will stop after generating the concatenated alignment and for the supertree approach this will stop after generating the trimmed alignments for each BUSCO family)
 
 
 ### Requirements
@@ -51,3 +54,4 @@ The majority of steps are parallelizable (e.g. family alignments) so running the
 ![BUSCO Phylogenomics pipeline](./pipeline.png)
 
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4320788.svg)](https://doi.org/10.5281/zenodo.4320788)
