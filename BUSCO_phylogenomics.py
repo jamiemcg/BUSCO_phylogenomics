@@ -49,7 +49,7 @@ def main():
     parser.add_argument("-t", "--threads", type=int, help="Number of threads to use", required=True)
     parser.add_argument("-d", "--directory", type=str, help="Directory containing completed BUSCO runs", required=True)
     parser.add_argument("-o", "--output", type=str, help="Output directory to store results", required=True)
-    parser.add_argument("-l", "--lineage", type=str, help="Name of lineage used to run BUSCO", required=True)
+    parser.add_argument("-l", "--lineage", type=str, help="Name of lineage used to run BUSCO", required=False)
     parser.add_argument("-psc", "--percent_single_copy", type=float, action="store", dest="psc",
                         help="BUSCOs that are present and single copy in N percent of species will be included in the "
                              "concatenated alignment")
@@ -90,6 +90,9 @@ def main():
     else:
         os.mkdir(working_directory)
 
+    if lineage == None:
+        lineage = ""
+
     # TODO check dependencies are installed
 
     print_message("Starting BUSCO Phylogenomics Pipeline")
@@ -119,7 +122,7 @@ def main():
         all_species.append(species)
 
         os.chdir(directory)
-        os.chdir("run_" + lineage)
+        # os.chdir("run_" + lineage) # Issue with BUSCO version >= 4?
         os.chdir("busco_sequences")
         os.chdir("single_copy_busco_sequences")
         
