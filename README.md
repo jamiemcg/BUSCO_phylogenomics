@@ -37,8 +37,8 @@ The majority of steps are parallelizable (e.g. family alignments) so running the
 
 
 ### Optional parameters
-* `-psc` BUSCO families that are present and single-copy in N% of species will be included in supermatrix analysis [default = 100%]
-* `--stop_early` stop pipeline early before phylogenetic inference (i.e. for the supermatrix approach this will stop after generating the concatenated alignment). This is recommened so you can choose your own parameters (e.g. bootstrapping methods) when running IQ-Tree, etc..
+* `-psc` BUSCO families that are present and single-copy in N% of species will be included in supermatrix analysis (default = 100%). Families that are missing for a species will be replaced with missing characters ("?").
+* `--stop_early` stop pipeline early before phylogenetic inference (i.e., for the supermatrix approach this will stop after generating the concatenated alignment). This is **recommended** so you can manually choose your own parameters (e.g., bootstrapping/model selection methods) or manually processing/filtering the alignments further when running IQ-Tree, etc..
 
 
 
