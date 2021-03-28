@@ -130,7 +130,7 @@ def main():
 
         for busco in os.listdir("."):
             if busco.endswith(".faa"):
-                print(busco)
+                #print(busco)
                 busco_name = busco[0:len(busco) - 4]
                 record = SeqIO.read(busco, "fasta")
                 new_record = SeqRecord(Seq(str(record.seq)), id=species, description="")
