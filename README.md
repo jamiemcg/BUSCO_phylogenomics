@@ -7,7 +7,7 @@ Utility script to construct species phylogenies using BUSCOs. Works directly fro
 
 ![BUSCO Phylogenomics pipeline](./pipeline.png)
 
-This pipeline runs directly on the output from BUSCO. Move results directories from each BUSCO run (begins with "run_" by default) into the same directory. Example structure, where `INPUT_DIRECTORY` is passed to the `-d` parameter of the pipeline:
+This pipeline runs directly on the output from BUSCO. Move results directories from each BUSCO run into the same directory. Example structure, where `INPUT_DIRECTORY` is passed to the `-d` parameter of the pipeline:
 
 ```
 * INPUT_DIRECTORY
@@ -22,11 +22,12 @@ This pipeline runs directly on the output from BUSCO. Move results directories f
 ```
 
 
-The majority of steps are parallelizable (e.g. family alignments) so running the pipeline with multiple threads leads to a dramatic decrease in runtime.
+The majority of steps are parallelizable (e.g. family alignments) so running the pipeline with multiple threads should dramatically decrease runtime.
 
 ### Usage
 	python BUSCO_Phylogenomics.py -d INPUT_DIRECTORY -o OUTPUT_DIRECTORY --supermatrix --threads 20
-	
+
+I reccommend using the `--stop_early` flag which stops the pipeline just after generating the concatenated alignment. Then you can take a look at the concatenated alignment first and manually choose parameters for phylogenetic inference. Similarly, you may want to change the alignment trimming strategy which currently uses the `-automated1` parameter from `trimal`
 	
 	
 ### Required parameters
@@ -45,7 +46,7 @@ The majority of steps are parallelizable (e.g. family alignments) so running the
 ### Requirements
 * [Python](https://www.python.org/)
 * [BioPython](https://biopython.org/)
-* [MUSCLE](https://www.drive5.com/muscle/)
+* [MUSCLE (v5)](https://www.drive5.com/muscle/)
 * [trimAl](http://trimal.cgenomics.org/)
 * [IQ-TREE](http://www.iqtree.org/)
 
