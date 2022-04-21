@@ -357,7 +357,7 @@ def main():
 
 
 def run_muscle(io):
-    os.system("muscle -in " + io[0] + " -out " + io[1] + " > /dev/null 2>&1")
+    os.system("muscle -threads 1 -align " + io[0] + " -output " + io[1] + " > /dev/null 2>&1")
 
 def run_trimal(io):
     os.system("trimal -in " + io[0] + " -out " + io[1] + " -automated1 ")
