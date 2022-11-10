@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # count_frequence_busco_family.py
-# 2022 Jamie McGowan <jamie.mcgowan@ealrham.ac.uk>
+# 2022 Jamie McGowan <jamie.mcgowan@earlham.ac.uk>
 # 
 # Reports how many species a BUSCO family was found to be single-copy in
 # Only looks at single-copies, ignores if present as multi copy or fragmented
