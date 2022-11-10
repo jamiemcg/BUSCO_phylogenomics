@@ -1,0 +1,10 @@
+name: BUSCO_phylogenomics
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - biopython
+  - muscle=5.1
+  - trimal=1.4.1
+  - iqtree
+  - fasttree

@@ -1,64 +1,100 @@
-# BUSCO_Phylogenomics
+# BUSCO Phylogenomics
+
+[Jamie McGowan, 2022](https://jamiemcgowan.ie)
 
 
-<a href="https://jamiemcgowan.ie" target="_blank">Jamie McGowan - 2020</a>
 
-Utility script to construct species phylogenies using BUSCOs. Works directly from BUSCO output and can be used for supermatrix or supertree/coalescent methods.
+This is a Python pipeline to construct species phylogenies using BUSCO proteins. It works directly from BUSCO output and can generate concatenated supermatrix alignments and also gene trees of BUSCO families.
+
+
+The pipeline identifies BUSCO proteins that are complete and single-copy in all input samples. Alternatively, you can account for missing data and choose to include BUSCO proteins that are complete and single-copy in a certain percentage of input samples. Each BUSCO family is individually aligned, trimmed, and then concatenated together to generate a supermatrix alignment. The pipeline also identifies BUSCO proteins that are complete and single-copy in at least 4 input samples, and generates gene trees for each of these families.
 
 ![BUSCO Phylogenomics pipeline](./pipeline.png)
 
-This pipeline runs directly on the output from BUSCO. Move results directories from each BUSCO run (begins with "run_" by default) into the same directory. Example structure, where `INPUT_DIRECTORY` is passed to the `-d` parameter of the pipeline:
+### Dependencies
+
+The pipeline requires the following dependencies:
+
+- [python](https://www.python.org/)
+- [biopython](https://biopython.org/)
+- [muscle](https://www.drive5.com/muscle/)
+- [trimal](https://github.com/inab/trimal)
+- [fasttree](http://www.microbesonline.org/fasttree/)
+- [iqtree](http://www.iqtree.org/)
+
+These should be available from your `$PATH`. Alternatively, they can be installed using conda with the provided yaml file `conda_env.yaml`, which will create a conda environment called BUSCO_phylogenomics
 
 ```
-* INPUT_DIRECTORY
-	* run_species1
-	* run_species2
-	* run_species3
-	* run_species4
-	* run_species5
-	* run_species6
-	* ........
+conda env create -f conda_env.yaml
+conda activate BUSCO_phylogenomics
 
+git clone https://github.com/jamiemcg/BUSCO_phylogenomics
 ```
-
-
-The majority of steps are parallelizable (e.g. family alignments) so running the pipeline with multiple threads leads to a dramatic decrease in runtime.
 
 ### Usage
-	python BUSCO_Phylogenomics.py -d INPUT_DIRECTORY -o OUTPUT_DIRECTORY --supermatrix --threads 20
-	
-	
-	
-### Required parameters
-* `-d --directory` input directory containing BUSCO runs
-* `-o --output` output directory
-* `-t --threads` number of threads to use
-* `--supermatrix` and/or `--supertree` choose to run supermatrix and/or supertree methods
+
+```
+python BUSCO_phylogenomics.py --help
+
+usage: BUSCO_phylogenomics.py [-h] -i INPUT -o OUTPUT -t THREADS [--supermatrix_only] [--gene_trees_only] [-psc PSC] [--trimal_strategy TRIMAL_STRATEGY] [--missing_character MISSING_CHARACTER] [--gene_tree_program GENE_TREE_PROGRAM] [--busco_version_3]
+
+Perform phylogenomic reconstruction using BUSCO proteins
+
+options:
+  -h, --help            show this help message and exit
+  -i INPUT, --input INPUT
+                        Input directory containing completed BUSCO runs
+  -o OUTPUT, --output OUTPUT
+                        Output directory to store results
+  -t THREADS, --threads THREADS
+                        Number of threads to use
+  --supermatrix_only    Don't generate gene trees
+  --gene_trees_only     Don't perform concatenated supermatrix analysis
+  -psc PSC, --percent_single_copy PSC
+                        BUSCO presence cut-off. BUSCOs that are complete and single-copy in at least [-psc] percent of species will be included in the contatenated alignment [default=100.0]
+  --trimal_strategy TRIMAL_STRATEGY
+                        trimal trimming strategy (automated1, gappyout, strict, strictplus) [default=automated1]
+  --missing_character MISSING_CHARACTER
+                        Character to represent missing data [default='?']
+  --gene_tree_program GENE_TREE_PROGRAM
+                        Program to use to generate gene trees (fasttree or iqtree) [default=fasttree]
+  --busco_version_3     Flag to indicate that BUSCO version 3 was used (which has slighly different output structure)
+```
+
+You should move all of your completed BUSCO output directories into the same directory.
 
 
-### Optional parameters
-* `-psc` BUSCO families that are present and single-copy in N% of species will be included in supermatrix analysis [default = 100%]
-* `--stop_early` stop pipeline early before phylogenetic inference (i.e. for the supermatrix approach this will stop after generating the concatenated alignment). This is recommened so you can choose your own parameters (e.g. bootstrapping methods) when running IQ-Tree, etc..
+**Example usage:**
+
+```
+python BUSCO_phylogenomics.py -i BUSCO_results -o output_busco_phylogenomics -t 8
+```
+
+This will look in the "BUSCO\_results" directory for completed BUSCO runs, generate multiple sequence alignments for all complete single-copy proteins that were found in all samples, trim alignments with trimal and then concatenate them together, generating a concatenated alignment in Fasta and Phylip format along with a partitions file in NEXUS format. It will also generate gene trees for all BUSCO proteins that are complete and single-copy in at least 4 samples. The output will be stored in a directory named "output\_busco\_phylogenomics". The pipeline is written to be executed on a single node/machine, here 8 parallel alignment/trimming/phylogeny jobs would run.
 
 
+If you don't want to generate gene trees, you can use the parameter `--supermatrix-only` to only generate the concatenated alignment.
 
-### Requirements
-* [Python](https://www.python.org/)
-* [BioPython](https://biopython.org/)
-* [MUSCLE](https://www.drive5.com/muscle/)
-* [trimAl](http://trimal.cgenomics.org/)
-* [IQ-TREE](http://www.iqtree.org/)
+If you don't want to generate a concatenated alignment, you can use the parameter `--gene_trees_only` to only generate gene trees.
 
+If you have a patchy dataset and want to include BUSCO proteins in your concatenated alignment that aren't universally present, you can use the `--percent_single_copy` parameter.
 
-`muscle`, `trimal` and `iqtree` should be in `$PATH`
+For example:
 
+```
+python BUSCO_phylogenomics.py -i BUSCO_results -o output_busco_phylogenomics -t 8 --percent_single_copy 70
+```
 
-### Citation
+will include all BUSCO families that are complete and single-copy in at least 70% of samples in your concatenated alignment. Missing data will be represented by "?" characters in the concatenated alignment by default. You can specify a different character to represent missing data with the `--missing_character` parameter.
 
-These scripts were initially written to generate species phylogenies for the following publications:
-
-- [McGowan, J., & Fitzpatrick, D. A. (2020). Recent advances in oomycete genomics. Advances in Genetics. **DOI: 10.1016/bs.adgen.2020.03.001**](https://www.sciencedirect.com/science/article/abs/pii/S0065266020300043)
-- [McGowan, J., O’Hanlon, R., Owens, R. A., & Fitzpatrick, D. A. (2020). Comparative Genomic and Proteomic Analyses of Three Widespread Phytophthora Species: Phytophthora chlamydospora, Phytophthora gonapodyides and Phytophthora pseudosyringae. Microorganisms, 8(5), 653. **DOI: 10.3390/microorganisms8050653**](https://www.mdpi.com/2076-2607/8/5/653)
+The provided `count_buscos.py` script can be used to count single-copy BUSCOs and summarise BUSCO presence/absences across
+samples to determine an appropriate cut-off for how much missing data to allow (--percent\_single\_copy).
 
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4320788.svg)](https://doi.org/10.5281/zenodo.4320788)
+```
+python count_buscos.py -i BUSCO_runs
+```
+
+This will report how many BUSCOs are complete and single-copy in what percentage of samples and print a presence/absence table for each BUSCO family.
+
+If you used BUSCO version 3 you should use the flag `--busco_version_3` as the output structure of this version of BUSCO is slightly different to that of versions 4 and 5.
