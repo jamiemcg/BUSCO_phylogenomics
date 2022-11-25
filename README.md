@@ -24,10 +24,11 @@ The pipeline requires the following dependencies:
 These should be available from your `$PATH`. Alternatively, they can be installed using conda with the provided yaml file `conda_env.yaml`, which will create a conda environment called BUSCO_phylogenomics
 
 ```
+git clone https://github.com/jamiemcg/BUSCO_phylogenomics
+cd BUSCO_phylogenomics
+
 conda env create -f conda_env.yaml
 conda activate BUSCO_phylogenomics
-
-git clone https://github.com/jamiemcg/BUSCO_phylogenomics
 ```
 
 ### Usage
