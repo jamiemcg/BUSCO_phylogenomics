@@ -1,6 +1,6 @@
 # BUSCO Phylogenomics
 
-[Jamie McGowan, 2022](https://jamiemcgowan.ie)
+[Jamie McGowan, 2023](https://jamiemcgowan.ie)
 
 
 This is a Python pipeline to construct species phylogenies using BUSCO proteins. It works directly from BUSCO output and can generate concatenated supermatrix alignments and also gene trees of BUSCO families.
