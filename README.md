@@ -49,16 +49,24 @@ options:
   -t THREADS, --threads THREADS
                         Number of threads to use
   --supermatrix_only    Don't generate gene trees
-  --gene_trees_only     Don't perform concatenated supermatrix analysis
+  --gene_trees_only     Don't perform supermatrix analysis
+  --nt                  Align nucleotide sequences instead of amino acid
+                        sequences
   -psc PSC, --percent_single_copy PSC
-                        BUSCO presence cut-off. BUSCOs that are complete and single-copy in at least [-psc] percent of species will be included in the contatenated alignment [default=100.0]
+                        BUSCO presence cut-off. BUSCOs that are complete and
+                        single-copy in at least [-psc] percent of species will
+                        be included in the contatenated alignment
+                        [default=100.0]
   --trimal_strategy TRIMAL_STRATEGY
-                        trimal trimming strategy (automated1, gappyout, strict, strictplus) [default=automated1]
+                        trimal trimming strategy (automated1, gappyout,
+                        strict, strictplus) [default=automated1]
   --missing_character MISSING_CHARACTER
                         Character to represent missing data [default='?']
   --gene_tree_program GENE_TREE_PROGRAM
-                        Program to use to generate gene trees (fasttree or iqtree) [default=fasttree]
-  --busco_version_3     Flag to indicate that BUSCO version 3 was used (which has slighly different output structure)
+                        Program to use to generate gene trees (fasttree or
+                        iqtree) [default=fasttree]
+  --busco_version_3     Flag to indicate that BUSCO version 3 was used (which
+                        has slighly different output structure)
 ```
 
 You should move all of your completed BUSCO output directories into the same directory.
@@ -76,6 +84,8 @@ This will look in the "BUSCO\_results" directory for completed BUSCO runs, gener
 If you don't want to generate gene trees, you can use the parameter `--supermatrix-only` to only generate the concatenated alignment.
 
 If you don't want to generate a concatenated alignment, you can use the parameter `--gene_trees_only` to only generate gene trees.
+
+By default, the pipeline works in protein space (i.e., aligns amino acid sequences). The `--nt` flag switches to using BUSCO nucleotide sequences instead of proteins.
 
 If you have a patchy dataset and want to include BUSCO proteins in your concatenated alignment that aren't universally present, you can use the `--percent_single_copy` parameter.
 

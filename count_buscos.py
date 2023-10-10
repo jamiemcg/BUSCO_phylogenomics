@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-# count_frequence_busco_family.py
-# 2022 Jamie McGowan <jamie.mcgowan@earlham.ac.uk>
+# 2023 Jamie McGowan <jamie.mcgowan@earlham.ac.uk>
 # 
 # Reports how many species a BUSCO family was found to be single-copy in
 # Only looks at single-copies, ignores if present as multi copy or fragmented
@@ -14,7 +13,7 @@ from os.path import abspath, basename, isdir, join
 from time import gmtime, strftime
 
 def main():
-    parser = argparse.ArgumentParser(description="Reports how many species a BUSCO protein was found to be single-copy in")
+    parser = argparse.ArgumentParser(description="Reports how many species a BUSCO sequences was found to be single-copy in")
     parser.add_argument("-i", "--input", type=str, help="Input directory containing completed BUSCO runs", required=True)
     parser.add_argument("--busco_version_3", action="store_true", help="Flag to indicate that BUSCO version 3 was used (which has slighly different output structure)")
     args = parser.parse_args()
@@ -63,7 +62,7 @@ def main():
         print_message("Exiting as only found one BUSCO directory")
         sys.exit()
     else:
-        print_message("Counting BUSCO proteins:")
+        print_message("Counting BUSCO sequences:")
 
     buscos_per_species = {}
     all_buscos = set()
@@ -100,7 +99,7 @@ def main():
         print(busco_sample_name, len(buscos_per_species[busco_sample_name]))
 
     print()
-    print("BUSCO protein\t#Species\t%Species")
+    print("BUSCO\t#Species\t%Species")
 
     present_in_all_species = []
 
@@ -117,7 +116,7 @@ def main():
 
         busco_counts.append([busco, count, percent])
 
-    buscos_counts = busco_counts.sort(key = lambda x:x[1], reverse = True)
+    busco_counts.sort(key = lambda x:x[1], reverse = True)
 
     for i in busco_counts:
         print("\t".join(map(str, i)))
@@ -126,9 +125,9 @@ def main():
     print()
 
     if len(present_in_all_species) == 0:
-        print_message("No BUSCO proteins were found to be complete and single-copy in all species")
+        print_message("No BUSCO sequences were found to be complete and single-copy in all species")
     else:
-        print_message(len(present_in_all_species), "BUSCO proteins were found to be complete and single-copy in all species")
+        print_message(len(present_in_all_species), "BUSCO sequences were found to be complete and single-copy in all species")
         print(present_in_all_species)
 
     print()
@@ -148,8 +147,10 @@ def main():
     print()
     print_message("Complete")
 
+
 def print_message(*message):
     print(strftime("%d-%m-%Y %H:%M:%S", gmtime()) + "\t" + " ".join(map(str, message)))
+
 
 if __name__ == "__main__":
     main()
