@@ -132,6 +132,8 @@ def main():
 
     print()
     print_message("Printing presence/absence matrix of all complete single-copy BUSCOs (!NOTE THIS EXCLUDES DUPLICATED/FRAGMENTED BUSCOS!)")
+
+    print("\t".join(["\t"] + [busco_sample_name for busco_sample_name in busco_sample_names]))
     
     for busco in all_buscos:
         line = [busco]
