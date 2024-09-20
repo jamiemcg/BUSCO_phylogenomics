@@ -1,6 +1,6 @@
 # BUSCO Phylogenomics
 
-[Jamie McGowan, 2023](https://jamiemcgowan.ie)
+[Jamie McGowan, 2024](https://jamiemcgowan.ie)
 
 
 This is a Python pipeline to construct species phylogenies using BUSCO proteins. It works directly from BUSCO output and can generate concatenated supermatrix alignments and also gene trees of BUSCO families.
@@ -21,7 +21,20 @@ The pipeline requires the following dependencies:
 - [fasttree](http://www.microbesonline.org/fasttree/)
 - [iqtree](http://www.iqtree.org/)
 
-These should be available from your `$PATH`. Alternatively, they can be installed using conda with the provided yaml file `conda_env.yaml`, which will create a conda environment called BUSCO_phylogenomics
+These should be available from your `$PATH`.
+
+You can install the BUSCO_Phylogenomics package with Conda from the Bioconda channel:
+
+```
+conda create -n BUSCO_phylogenomics -c bioconda busco_phylogenomics
+conda activate BUSCO_phylogenomics
+
+BUSCO_phylogenomics.py --help
+count_buscos.py --help
+```
+
+
+Alternatively, you can manually install the package and dependencies using conda with the provided yaml file `conda_env.yaml`, which will create a conda environment called BUSCO_phylogenomics
 
 ```
 git clone https://github.com/jamiemcg/BUSCO_phylogenomics
@@ -29,6 +42,9 @@ cd BUSCO_phylogenomics
 
 conda env create -f conda_env.yaml
 conda activate BUSCO_phylogenomics
+
+BUSCO_phylogenomics.py --help
+count_buscos.py --help
 ```
 
 ### Usage
