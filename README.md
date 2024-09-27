@@ -1,5 +1,8 @@
 # BUSCO Phylogenomics
 
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/busco_phylogenomics/README.html)
+
+
 [Jamie McGowan, 2024](https://jamiemcgowan.ie)
 
 
