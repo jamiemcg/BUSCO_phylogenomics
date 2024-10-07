@@ -129,9 +129,9 @@ This will report how many BUSCOs are complete and single-copy in what percentage
 If you used BUSCO version 3 you should use the flag `--busco_version_3` as the output structure of this version of BUSCO is slightly different to that of versions 4 and 5.
 
 <details>
-<summary><strong>Publications that use the BUSCO_phylogenomics pipeline (to Sept 2024):</strong></summary>
+<summary><strong>Publications that use the BUSCO_phylogenomics pipeline (to Sept 2024; N = 42):</strong></summary>
 
-<ol>
+<ul>
 <li>2024. Whole genome phylogenomics helps to resolve the phylogenetic position of the Zygothrica genus group (Diptera, Drosophilidae) and the causes of previous incongruences. Molecular Phylogenetics and Evolution. Bessa, Maiara Hartwig; Gottschalk, Marco Silva; Robe, Lizandra Jaqueline;</li>
 <li>2024. The nuclear and mitochondrial genome assemblies of Tetragonisca angustula (Apidae: Meliponini), a tiny yet remarkable pollinator in the Neotropics. BMC genomics. Ferrari, Rafael Rodrigues; Ricardo, Paulo Cseri; Dias, Felipe Cordeiro; de Souza Araujo, Natalia; Soares, Dalliane Oliveira; Zhou, Qing-Song; Zhu, Chao-Dong; Coutinho, Luiz Lehmann; Arias, Maria Cristina; Batista, Thiago Mafra;</li>
 <li>2024. Hybrid assembly and comparative genomics unveil insights into the evolution and biology of the red-legged partridge. Scientific Reports. Eleiwa, Abderrahmane; Nadal, Jesus; Vilaprinyo, Ester; Marin-Sanguino, Alberto; Sorribas, Albert; Basallo, Oriol; Lucido, Abel; Richart, Cristobal; Pena, Ramona N; Ros-Freixedes, Roger;</li>
@@ -174,5 +174,5 @@ If you used BUSCO version 3 you should use the flag `--busco_version_3` as the o
 <li>2020. Draft genome of Bugula neritina, a colonial animal packing powerful symbionts and potential medicines. Scientific data. Rayko, Mikhail; Komissarov, Aleksey; Kwan, Jason C; Lim-Fong, Grace; Rhodes, Adelaide C; Kliver, Sergey; Kuchur, Polina; O’Brien, Stephen J; Lopez, Jose V;</li>
 <li>2020. Comparative genomic and proteomic analyses of three widespread Phytophthora species: Phytophthora chlamydospora, Phytophthora gonapodyides and Phytophthora pseudosyringae. Microorganisms. McGowan, Jamie; O’Hanlon, Richard; Owens, Rebecca A; Fitzpatrick, David A;</li>
 <li>2020. Recent advances in oomycete genomics. Advances in genetics. McGowan, Jamie; Fitzpatrick, David A;</li>
-</ol>
+</ul>
 </details>
