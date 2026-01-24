@@ -106,7 +106,7 @@ If you don't want to generate gene trees, you can use the parameter `--supermatr
 
 If you don't want to generate a concatenated alignment, you can use the parameter `--gene_trees_only` to only generate gene trees.
 
-By default, the pipeline works in protein space (i.e., aligns amino acid sequences). The `--nt` flag switches to using BUSCO nucleotide sequences instead of proteins. **WARNING:** `--nt` nucleotide mode does NOT work if you used miniprot to find BUSCOs. This is because running BUSCO with miniprot only outputs amino acid sequences.
+By default, the pipeline works in protein space (i.e., aligns amino acid sequences). The `--nt` flag switches to using BUSCO nucleotide sequences instead of proteins. :warning: :rotating_light: **WARNING:** `--nt` nucleotide mode does NOT work if you used miniprot to find BUSCOs. This is because running BUSCO with miniprot only outputs amino acid sequences.
 
 If you have a patchy dataset and want to include BUSCO proteins in your concatenated alignment that aren't universally present, you can use the `--percent_single_copy` parameter.
 
