@@ -4,7 +4,7 @@
 # Utility script to construct species phylogenies using BUSCO results.
 # Assumes the same BUSCO dataset has been used on each genome
 
-# 2023 Jamie McGowan <jamie.mcgowan@earlham.ac.uk>
+# 2026 Jamie McGowan <jamie.mcgowan@ucd.ie>
 # https://github.com/jamiemcg/BUSCO_phylogenomics
 
 
@@ -12,12 +12,14 @@ import argparse
 import multiprocessing as mp
 from os import listdir, chdir, mkdir, system
 from os.path import abspath, basename, isdir, join
+from time import gmtime, strftime
 import sys
 
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from time import gmtime, strftime
+from tqdm import tqdm
+
 
 def main():
     parser = argparse.ArgumentParser(description="Perform phylogenomic reconstruction using BUSCO sequences")
@@ -27,7 +29,7 @@ def main():
     parser.add_argument("-t", "--threads", type=int, help="Number of threads to use", required=True)
     parser.add_argument("--supermatrix_only", help="Don't generate gene trees", action="store_true")
     parser.add_argument("--gene_trees_only", help="Don't perform supermatrix analysis", action="store_true")
-    parser.add_argument("--nt", help="Align nucleotide sequences instead of amino acid sequences", action="store_true")  
+    parser.add_argument("--nt", help="Align nucleotide sequences instead of amino acid sequences. Does NOT work if miniprot was used to identify BUSCOs.", action="store_true")
     parser.add_argument("-psc", "--percent_single_copy", type=float, action="store", dest="psc", default=100.0,
                         help="BUSCO presence cut-off. BUSCOs that are complete and single-copy in at least [-psc] percent of species will be included in the contatenated alignment [default=100.0]")
     parser.add_argument("--trimal_strategy", type=str, action="store", dest="trimal_strategy", default="automated1",
@@ -216,12 +218,12 @@ def main():
             mp_commands.append([join(working_directory, "supermatrix", "sequences", busco + sequence_file_extension),
                                 join(working_directory, "supermatrix", "alignments", busco + ".aln")])
 
-        pool = mp.Pool(processes=threads)
-        results = pool.map(run_muscle, mp_commands)
-
-        pool.close()
-        pool.join()
-
+        run_parallel_with_progress(
+            run_muscle,
+            mp_commands,
+            threads,
+            "MUSCLE alignments"
+        )
 
         mkdir("trimmed_alignments")
         print_message("Trimming alignments using trimAL (" + trimal_strategy + ") with", threads, "parallel jobs to:", join(working_directory, "supermatrix", "trimmed_alignments"))
@@ -231,11 +233,12 @@ def main():
             mp_commands.append([join(working_directory, "supermatrix", "alignments", busco + ".aln"),
                                 join(working_directory, "supermatrix", "trimmed_alignments", busco + ".trimmed.aln")])
 
-        pool = mp.Pool(processes=threads)
-        results = pool.map(run_trimal, mp_commands)
-
-        pool.close()
-        pool.join()
+        run_parallel_with_progress(
+            run_trimal,
+            mp_commands,
+            threads,
+            "trimAL trimming"
+        )
 
         print_message("Concatenating all trimmed alignments")
 
@@ -302,7 +305,7 @@ def main():
 
         fo.close()
 
-        print_message("Supermatrix alignment is", str(len(alignments[sample])), "amino acids in length")
+        print_message("Supermatrix alignment length is ", str(len(alignments[sample])))
 
         print()
 
@@ -341,8 +344,12 @@ def main():
             mp_commands.append([join(working_directory, "gene_trees_single_copy", "sequences_4", busco + sequence_file_extension),
                                 join(working_directory, "gene_trees_single_copy", "alignments_4", busco + ".aln")])
         
-        pool = mp.Pool(processes=threads)
-        results = pool.map(run_muscle, mp_commands)
+        run_parallel_with_progress(
+            run_muscle,
+            mp_commands,
+            threads,
+            "MUSCLE alignments"
+        )
 
         mkdir("trimmed_alignments_4")
         print_message("Trimming alignments using trimAL (" + trimal_strategy + ") with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "trimmed_alignments_4"))
@@ -352,8 +359,12 @@ def main():
             mp_commands.append([join(working_directory, "gene_trees_single_copy", "alignments_4", busco + ".aln"),
                                 join(working_directory, "gene_trees_single_copy", "trimmed_alignments_4", busco + ".trimmed.aln")])
 
-        pool = mp.Pool(processes=threads)
-        results = pool.map(run_trimal, mp_commands)
+        run_parallel_with_progress(
+            run_trimal,
+            mp_commands,
+            threads,
+            "trimAL trimming"
+        )
 
         mkdir("trees_4")
 
@@ -366,8 +377,12 @@ def main():
 
             print_message("Generating gene trees using fasttree with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "trees_4"))
 
-            pool = mp.Pool(processes=threads)
-            results = pool.map(run_fasttree, mp_commands)
+            run_parallel_with_progress(
+                run_fasttree,
+                mp_commands,
+                threads,
+                "FastTree gene trees"
+            )
             
             concatenate_commant = "cat " + join(working_directory, "gene_trees_single_copy", "trees_4", "*.tree") + " > " + join(working_directory, "gene_trees_single_copy", "ALL.tree")
         elif gene_tree_program == "iqtree":
@@ -379,8 +394,12 @@ def main():
 
             print_message("Generating gene trees using iqtree with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "trees_4"))
 
-            pool = mp.Pool(processes=threads)
-            results = pool.map(run_iqtree, mp_commands)
+            run_parallel_with_progress(
+                run_iqtree,
+                mp_commands,
+                threads,
+                "IQ-Tree gene trees"
+            )
 
             concatenate_commant = "cat " + join(working_directory, "gene_trees_single_copy", "trees_4", "*.treefile") + " > " + join(working_directory, "gene_trees_single_copy", "ALL.tree")
 
@@ -402,6 +421,15 @@ def run_iqtree(io):
 
 def run_fasttree(io):
     system("fasttree " + io[0] + " > " + io[1] + " 2> /dev/null")
+
+def run_parallel_with_progress(func, commands, threads, desc):
+    with mp.Pool(processes=threads) as pool:
+        for _ in tqdm(
+            pool.imap_unordered(func, commands),
+            total=len(commands),
+            desc=desc
+        ):
+            pass
 
 def print_message(*message):
     print(strftime("%d-%m-%Y %H:%M:%S", gmtime()) + "\t" + " ".join(map(str, message)))

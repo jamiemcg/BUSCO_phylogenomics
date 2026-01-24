@@ -3,7 +3,7 @@
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/busco_phylogenomics/README.html)
 
 
-[Jamie McGowan, 2024](https://jamiemcgowan.ie)
+[Jamie McGowan, 2026](https://jamiemcgowan.ie)
 
 
 This is a Python pipeline to construct species phylogenies using BUSCO proteins. It works directly from BUSCO output and can generate concatenated supermatrix alignments and also gene trees of BUSCO families.
@@ -23,6 +23,7 @@ The pipeline requires the following dependencies:
 - [trimal](https://github.com/inab/trimal)
 - [fasttree](http://www.microbesonline.org/fasttree/)
 - [iqtree](http://www.iqtree.org/)
+- [tqdm](https://github.com/tqdm/tqdm)
 
 These should be available from your `$PATH`.
 
@@ -37,7 +38,7 @@ count_buscos.py --help
 ```
 
 
-Alternatively, you can manually install the package and dependencies using conda with the provided yaml file `conda_env.yaml`, which will create a conda environment called BUSCO_phylogenomics
+Alternatively, you can manually install the packages and dependencies using conda with the provided yaml file `conda_env.yaml`, which will create a conda environment called BUSCO_phylogenomics
 
 ```
 git clone https://github.com/jamiemcg/BUSCO_phylogenomics
@@ -70,7 +71,8 @@ options:
   --supermatrix_only    Don't generate gene trees
   --gene_trees_only     Don't perform supermatrix analysis
   --nt                  Align nucleotide sequences instead of amino acid
-                        sequences
+                        sequences. Does NOT work if miniprot was used to
+                        identify BUSCOs.
   -psc PSC, --percent_single_copy PSC
                         BUSCO presence cut-off. BUSCOs that are complete and
                         single-copy in at least [-psc] percent of species will
@@ -104,7 +106,7 @@ If you don't want to generate gene trees, you can use the parameter `--supermatr
 
 If you don't want to generate a concatenated alignment, you can use the parameter `--gene_trees_only` to only generate gene trees.
 
-By default, the pipeline works in protein space (i.e., aligns amino acid sequences). The `--nt` flag switches to using BUSCO nucleotide sequences instead of proteins.
+By default, the pipeline works in protein space (i.e., aligns amino acid sequences). The `--nt` flag switches to using BUSCO nucleotide sequences instead of proteins. **WARNING:** `--nt` nucleotide mode does NOT work if you used miniprot to find BUSCOs. This is because running BUSCO with miniprot only outputs amino acid sequences.
 
 If you have a patchy dataset and want to include BUSCO proteins in your concatenated alignment that aren't universally present, you can use the `--percent_single_copy` parameter.
 
