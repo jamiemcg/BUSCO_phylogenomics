@@ -206,9 +206,14 @@ def main():
         mkdir("sequences")
         print_message("Writing " + sequence_type + " sequences to", join(working_directory, "supermatrix", "sequences"))
 
+        pbar = tqdm(total = len(single_copy_buscos), desc = "Writing " + sequence_type + " sequences")
+
         for busco in single_copy_buscos:
             busco_records = buscos[busco]
             SeqIO.write(busco_records, join(working_directory, "supermatrix", "sequences", busco + sequence_file_extension), "fasta")
+            pbar.update(1)
+
+        pbar.close()
 
         mkdir("alignments")
         print_message("Aligning " + sequence_type + " sequences using MUSCLE with", threads, "parallel jobs to:", join(working_directory, "supermatrix", "alignments"))
@@ -332,9 +337,14 @@ def main():
         mkdir("sequences_4")
         print_message("Writing " + sequence_type + " sequences to", join(working_directory, "gene_trees", "sequences_4"))
 
+        pbar = tqdm(total = len(single_copy_buscos_4_species), desc = "Writing " + sequence_type + " sequences")
+
         for busco in single_copy_buscos_4_species:
             busco_records = buscos[busco]
             SeqIO.write(busco_records, join(working_directory, "gene_trees_single_copy", "sequences_4", busco + sequence_file_extension), "fasta")
+            pbar.update(1)
+
+        pbar.close()
 
         mkdir("alignments_4")
         print_message("Aligning " + sequence_type + " sequences using MUSCLE with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "alignments_4"))
