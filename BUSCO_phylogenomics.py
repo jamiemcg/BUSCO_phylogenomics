@@ -20,7 +20,6 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from tqdm import tqdm
 
-
 def main():
     parser = argparse.ArgumentParser(description="Perform phylogenomic reconstruction using BUSCO sequences")
 
@@ -32,6 +31,8 @@ def main():
     parser.add_argument("--nt", help="Align nucleotide sequences instead of amino acid sequences. Does NOT work if miniprot was used to identify BUSCOs.", action="store_true")
     parser.add_argument("-psc", "--percent_single_copy", type=float, action="store", dest="psc", default=100.0,
                         help="BUSCO presence cut-off. BUSCOs that are complete and single-copy in at least [-psc] percent of species will be included in the contatenated alignment [default=100.0]")
+    parser.add_argument("--mafft", help="Use MAFFT for sequence alignment (default)", action="store_true")
+    parser.add_argument("--muscle", help="Use MUSCLE for sequence alignment", action="store_true")
     parser.add_argument("--trimal_strategy", type=str, action="store", dest="trimal_strategy", default="automated1",
                         help="trimal trimming strategy (automated1, gappyout, strict, strictplus) [default=automated1]")
     parser.add_argument("--missing_character", type=str, action="store", dest="missing_character", help="Character to represent missing data [default='?']", default="?")
@@ -78,6 +79,10 @@ def main():
         print_message("ERROR. You cannot select both --supermatrix_only and --gene_trees_only")
         sys.exit()
 
+    if args.mafft and args.muscle:
+        print_message("ERROR. You cannot select both --mafft and --muscle")
+        sys.exit()
+
     if args.nt:
         sequence_file_extension = ".fna"
         sequence_type = "nucleotide"
@@ -111,8 +116,7 @@ def main():
                     j = join(i, j)
                     if isdir(j) and "run_" in j:
                         busco_samples.append(j)
-                        busco_sample_names.append(basename(i))        
-
+                        busco_sample_names.append(basename(i))
 
     if len(busco_samples) == 0:
         print_message("ERROR. Didn't find any BUSCO directories")
@@ -149,14 +153,14 @@ def main():
                 # TODO This slows things down a bit as it reads all sequences even if they aren't going to be used later
                 record = SeqIO.read(f, "fasta")
                 new_record = SeqRecord(Seq(str(record.seq)), id=busco_sample_name, description="")
-                
+
                 buscos_per_species[busco_sample_name].append(busco_name)
                 buscos[busco_name].append(new_record)
 
     print("Name\tComplete and single-copy BUSCOs:")
     for busco_sample_name in busco_sample_names:
         print(busco_sample_name, len(buscos_per_species[busco_sample_name]))
-                
+
     print()
     print_message(len(all_buscos), "unique BUSCO sequences considered")
     print()
@@ -202,11 +206,11 @@ def main():
 
         mkdir("supermatrix")
         chdir("supermatrix")
-        
+
         mkdir("sequences")
         print_message("Writing " + sequence_type + " sequences to", join(working_directory, "supermatrix", "sequences"))
 
-        pbar = tqdm(total = len(single_copy_buscos), desc = "Writing " + sequence_type + " sequences")
+        pbar = tqdm(total = len(single_copy_buscos), desc = "Writing sequences")
 
         for busco in single_copy_buscos:
             busco_records = buscos[busco]
@@ -216,19 +220,29 @@ def main():
         pbar.close()
 
         mkdir("alignments")
-        print_message("Aligning " + sequence_type + " sequences using MUSCLE with", threads, "parallel jobs to:", join(working_directory, "supermatrix", "alignments"))
 
         mp_commands = []
         for busco in single_copy_buscos:
             mp_commands.append([join(working_directory, "supermatrix", "sequences", busco + sequence_file_extension),
                                 join(working_directory, "supermatrix", "alignments", busco + ".aln")])
 
-        run_parallel_with_progress(
-            run_muscle,
-            mp_commands,
-            threads,
-            "MUSCLE alignments"
-        )
+
+        if args.muscle:
+            print_message("Aligning " + sequence_type + " sequences using MUSCLE with", threads, "parallel jobs to:", join(working_directory, "supermatrix", "alignments"))
+            run_parallel_with_progress(
+                run_muscle,
+                mp_commands,
+                threads,
+                "Aligning sequences"
+            )
+        else:
+            print_message("Aligning " + sequence_type + " sequences using MAFFT (--auto) with", threads, "parallel jobs to:", join(working_directory, "supermatrix", "alignments"))
+            run_parallel_with_progress(
+                run_mafft,
+                mp_commands,
+                threads,
+                "Aligning sequences"
+            )
 
         mkdir("trimmed_alignments")
         print_message("Trimming alignments using trimAL (" + trimal_strategy + ") with", threads, "parallel jobs to:", join(working_directory, "supermatrix", "trimmed_alignments"))
@@ -242,7 +256,7 @@ def main():
             run_trimal,
             mp_commands,
             threads,
-            "trimAL trimming"
+            "Trimming alignments"
         )
 
         print_message("Concatenating all trimmed alignments")
@@ -276,13 +290,13 @@ def main():
 
                     partitions.append([alignment.replace(".trimmed.aln", ""), start, start + len(str(record.seq)) - 1])
                     start += len(record.seq)
-                    
+
                     if len(check_samples) > 0:
                         # This means some species were missing this busco, fill alignment with missing character ("?" is default)
                         seq_len = len(str(record.seq))
                         for sample in check_samples:
                             alignments[sample] += (args.missing_character * seq_len)
-        
+
         chdir(working_directory)
         chdir("supermatrix")
 
@@ -305,7 +319,7 @@ def main():
 
         for p in partitions:
             fo.write("\tcharset " + p[0] + " = SUPERMATRIX.phylip: " + str(p[1]) + "-" + str(p[2]) + ";\n")
-        
+
         fo.write("end;\n")
 
         fo.close()
@@ -337,7 +351,7 @@ def main():
         mkdir("sequences_4")
         print_message("Writing " + sequence_type + " sequences to", join(working_directory, "gene_trees", "sequences_4"))
 
-        pbar = tqdm(total = len(single_copy_buscos_4_species), desc = "Writing " + sequence_type + " sequences")
+        pbar = tqdm(total = len(single_copy_buscos_4_species), desc = "Writing sequences")
 
         for busco in single_copy_buscos_4_species:
             busco_records = buscos[busco]
@@ -347,19 +361,29 @@ def main():
         pbar.close()
 
         mkdir("alignments_4")
-        print_message("Aligning " + sequence_type + " sequences using MUSCLE with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "alignments_4"))
 
         mp_commands = []
         for busco in single_copy_buscos_4_species:
             mp_commands.append([join(working_directory, "gene_trees_single_copy", "sequences_4", busco + sequence_file_extension),
                                 join(working_directory, "gene_trees_single_copy", "alignments_4", busco + ".aln")])
-        
-        run_parallel_with_progress(
-            run_muscle,
-            mp_commands,
-            threads,
-            "MUSCLE alignments"
-        )
+
+
+        if args.muscle:
+            print_message("Aligning " + sequence_type + " sequences using MUSCLE with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "alignments_4"))
+            run_parallel_with_progress(
+                run_muscle,
+                mp_commands,
+                threads,
+                "Aligning sequences"
+            )
+        else:
+            print_message("Aligning " + sequence_type + " sequences using MAFFT (--auto) with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "alignments_4"))
+            run_parallel_with_progress(
+                run_mafft,
+                mp_commands,
+                threads,
+                "Aligning sequences"
+            )
 
         mkdir("trimmed_alignments_4")
         print_message("Trimming alignments using trimAL (" + trimal_strategy + ") with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "trimmed_alignments_4"))
@@ -373,13 +397,13 @@ def main():
             run_trimal,
             mp_commands,
             threads,
-            "trimAL trimming"
+            "Trimming sequences"
         )
 
         mkdir("trees_4")
 
         if gene_tree_program == "fasttree":
-            
+
             mp_commands = []
             for busco in single_copy_buscos_4_species:
                 mp_commands.append([join(working_directory, "gene_trees_single_copy", "trimmed_alignments_4", busco + ".trimmed.aln"),
@@ -391,12 +415,12 @@ def main():
                 run_fasttree,
                 mp_commands,
                 threads,
-                "FastTree gene trees"
+                "Generating gene trees"
             )
-            
+
             concatenate_commant = "cat " + join(working_directory, "gene_trees_single_copy", "trees_4", "*.tree") + " > " + join(working_directory, "gene_trees_single_copy", "ALL.tree")
         elif gene_tree_program == "iqtree":
-            
+
             mp_commands = []
             for busco in single_copy_buscos_4_species:
                 mp_commands.append([join(working_directory, "gene_trees_single_copy", "trimmed_alignments_4", busco + ".trimmed.aln"),
@@ -408,7 +432,7 @@ def main():
                 run_iqtree,
                 mp_commands,
                 threads,
-                "IQ-Tree gene trees"
+                "Generating gene trees"
             )
 
             concatenate_commant = "cat " + join(working_directory, "gene_trees_single_copy", "trees_4", "*.treefile") + " > " + join(working_directory, "gene_trees_single_copy", "ALL.tree")
@@ -422,6 +446,9 @@ def main():
 
 def run_muscle(io):
     system("muscle -threads 1 -align " + io[0] + " -output " + io[1] + " > /dev/null 2>&1")
+
+def run_mafft(io):
+    system("mafft --auto " + io[0] + " > " + io[1] + " 2> /dev/null")
 
 def run_trimal(io):
     system("trimal -in " + io[0] + " -out " + io[1] + " -automated1 ")

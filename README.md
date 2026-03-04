@@ -20,6 +20,7 @@ The pipeline requires the following dependencies:
 - [python](https://www.python.org/)
 - [biopython](https://biopython.org/)
 - [muscle](https://www.drive5.com/muscle/)
+- [mafft](https://mafft.cbrc.jp/)
 - [trimal](https://github.com/inab/trimal)
 - [fasttree](http://www.microbesonline.org/fasttree/)
 - [iqtree](http://www.iqtree.org/)
@@ -78,6 +79,8 @@ options:
                         single-copy in at least [-psc] percent of species will
                         be included in the contatenated alignment
                         [default=100.0]
+  --mafft               Use MAFFT for sequence alignment (default)
+  --muscle              Use MUSCLE for sequence alignment
   --trimal_strategy TRIMAL_STRATEGY
                         trimal trimming strategy (automated1, gappyout,
                         strict, strictplus) [default=automated1]
@@ -101,6 +104,7 @@ python BUSCO_phylogenomics.py -i BUSCO_results -o output_busco_phylogenomics -t 
 
 This will look in the "BUSCO\_results" directory for completed BUSCO runs, generate multiple sequence alignments for all complete single-copy proteins that were found in all samples, trim alignments with trimal and then concatenate them together, generating a concatenated alignment in Fasta and Phylip format along with a partitions file in NEXUS format. It will also generate gene trees for all BUSCO proteins that are complete and single-copy in at least 4 samples. The output will be stored in a directory named "output\_busco\_phylogenomics". The pipeline is written to be executed on a single node/machine, here 8 parallel alignment/trimming/phylogeny jobs would run.
 
+By default, MAFFT (--auto) is used for sequence alignment. Alternatively, you can use MUSCLE by specifying `--muscle`.
 
 If you don't want to generate gene trees, you can use the parameter `--supermatrix-only` to only generate the concatenated alignment.
 
