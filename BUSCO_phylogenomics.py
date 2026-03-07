@@ -453,7 +453,6 @@ def run_mafft(io):
     system("mafft --auto " + io[0] + " > " + io[1] + " 2> /dev/null")
 
 def run_trimal(io):
-    print("trimal -in " + io[0] + " -out " + io[1] + " " + io[2])
     system("trimal -in " + io[0] + " -out " + io[1] + " " + io[2])
 
 def run_iqtree(io):
