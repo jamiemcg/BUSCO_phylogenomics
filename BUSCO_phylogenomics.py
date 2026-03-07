@@ -250,7 +250,8 @@ def main():
         mp_commands = []
         for busco in single_copy_buscos:
             mp_commands.append([join(working_directory, "supermatrix", "alignments", busco + ".aln"),
-                                join(working_directory, "supermatrix", "trimmed_alignments", busco + ".trimmed.aln")])
+                                join(working_directory, "supermatrix", "trimmed_alignments", busco + ".trimmed.aln"),
+                                trimal_strategy])
 
         run_parallel_with_progress(
             run_trimal,
@@ -391,7 +392,8 @@ def main():
         mp_commands = []
         for busco in single_copy_buscos_4_species:
             mp_commands.append([join(working_directory, "gene_trees_single_copy", "alignments_4", busco + ".aln"),
-                                join(working_directory, "gene_trees_single_copy", "trimmed_alignments_4", busco + ".trimmed.aln")])
+                                join(working_directory, "gene_trees_single_copy", "trimmed_alignments_4", busco + ".trimmed.aln"),
+                                trimal_strategy])
 
         run_parallel_with_progress(
             run_trimal,
@@ -451,7 +453,8 @@ def run_mafft(io):
     system("mafft --auto " + io[0] + " > " + io[1] + " 2> /dev/null")
 
 def run_trimal(io):
-    system("trimal -in " + io[0] + " -out " + io[1] + " -automated1 ")
+    print("trimal -in " + io[0] + " -out " + io[1] + " " + io[2])
+    system("trimal -in " + io[0] + " -out " + io[1] + " " + io[2])
 
 def run_iqtree(io):
     system("iqtree --quiet -T 1 -s " + io[0] + " --prefix " + io[1])
