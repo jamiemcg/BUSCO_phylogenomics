@@ -145,7 +145,7 @@ def main():
 
         for f in listdir("."):
             if f.endswith(sequence_file_extension):
-                busco_name = f.rstrip(sequence_file_extension)
+                busco_name = f.removesuffix(sequence_file_extension)
                 all_buscos.add(busco_name)
                 if busco_name not in buscos:
                     buscos[busco_name] = []
