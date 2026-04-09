@@ -9,7 +9,7 @@
 This is a simple, easy-to-use pipeline to construct species phylogenies using BUSCO proteins. It works directly from BUSCO output and can generate concatenated supermatrix alignments and also gene trees of BUSCO families.
 
 
-The pipeline identifies BUSCO proteins that are complete and single-copy in all input samples. Alternatively, you can account for missing data and choose to include BUSCO proteins that are complete and single-copy in a certain percentage of input samples. Each BUSCO family is individually aligned, trimmed, and then concatenated together to generate a supermatrix alignment. The pipeline also identifies BUSCO proteins that are complete and single-copy in at least 4 input samples, and generates gene trees for each of these families.
+The pipeline identifies BUSCO proteins that are complete and single-copy in all input samples. Alternatively, you can account for missing data and choose to include BUSCO proteins that are complete and single-copy in a certain percentage of input samples. Each BUSCO family is individually aligned, trimmed, and then concatenated together to generate a supermatrix alignment. The pipeline also generates individual phylogenies for BUSCOs that are complete and single-copy.
 
 
 ![BUSCO Phylogenomics pipeline](./pipeline.png)
@@ -95,6 +95,8 @@ options:
   --gene_tree_program GENE_TREE_PROGRAM
                         Program to use to generate gene trees (fasttree or
                         iqtree) [default=fasttree]
+  --min_species_gene_tree MIN_SPECIES_GENE_TREE
+                        Min number of species required to construct a gene tree [default=4]
   --busco_version_3     Flag to indicate that BUSCO version 3 was used (which
                         has slighly different output structure)
 ```

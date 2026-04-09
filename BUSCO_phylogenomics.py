@@ -37,6 +37,7 @@ def main():
                         help="trimal trimming strategy (automated1, gappyout, strict, strictplus) [default=automated1]")
     parser.add_argument("--missing_character", type=str, action="store", dest="missing_character", help="Character to represent missing data [default='?']", default="?")
     parser.add_argument("--gene_tree_program", type=str, action="store", dest="gene_tree_program", default="fasttree", help="Program to use to generate gene trees (fasttree or iqtree) [default=fasttree]")
+    parser.add_argument("--min_species_gene_tree", type=int, default=4, help="Min number of species required to construct a gene tree [default=4]")
     parser.add_argument("--busco_version_3", action="store_true", help="Flag to indicate that BUSCO version 3 was used (which has slighly different output structure)")
     
     args = parser.parse_args()
@@ -330,47 +331,47 @@ def main():
         print()
 
     if not args.supermatrix_only:
-        print_message("Identifying BUSCOs that are complete and single-copy in at least 4 species")
+        print_message("Identifying BUSCOs that are complete and single-copy in at least", args.min_species_gene_tree, "species")
 
-        single_copy_buscos_4_species = []
+        buscos_for_gene_trees = []
 
         chdir(working_directory)
 
         for busco in buscos:
-            if len(buscos[busco]) >= 4:
-                single_copy_buscos_4_species.append(busco)
+            if len(buscos[busco]) >= args.min_species_gene_tree:
+                buscos_for_gene_trees.append(busco)
                 # print(busco, len(buscos[busco]))
 
-        print_message("Identified", len(single_copy_buscos_4_species), "BUSCO sequences that are complete and single-copy in at least 4 species:")
-        print(",".join(single_copy_buscos_4_species))
+        print_message("Identified", len(buscos_for_gene_trees), "BUSCO sequences that are complete and single-copy in at least", args.min_species_gene_tree, "species:")
+        print(",".join(buscos_for_gene_trees))
 
-        mkdir("gene_trees_single_copy")
-        chdir("gene_trees_single_copy")
+        mkdir("gene_trees")
+        chdir("gene_trees")
 
         print()
 
-        mkdir("sequences_4")
-        print_message("Writing " + sequence_type + " sequences to", join(working_directory, "gene_trees", "sequences_4"))
+        mkdir("sequences")
+        print_message("Writing " + sequence_type + " sequences to", join(working_directory, "gene_trees", "sequences"))
 
-        pbar = tqdm(total = len(single_copy_buscos_4_species), desc = "Writing sequences")
+        pbar = tqdm(total = len(buscos_for_gene_trees), desc = "Writing sequences")
 
-        for busco in single_copy_buscos_4_species:
+        for busco in buscos_for_gene_trees:
             busco_records = buscos[busco]
-            SeqIO.write(busco_records, join(working_directory, "gene_trees_single_copy", "sequences_4", busco + sequence_file_extension), "fasta")
+            SeqIO.write(busco_records, join(working_directory, "gene_trees", "sequences", busco + sequence_file_extension), "fasta")
             pbar.update(1)
 
         pbar.close()
 
-        mkdir("alignments_4")
+        mkdir("alignments")
 
         mp_commands = []
-        for busco in single_copy_buscos_4_species:
-            mp_commands.append([join(working_directory, "gene_trees_single_copy", "sequences_4", busco + sequence_file_extension),
-                                join(working_directory, "gene_trees_single_copy", "alignments_4", busco + ".aln")])
+        for busco in buscos_for_gene_trees:
+            mp_commands.append([join(working_directory, "gene_trees", "sequences", busco + sequence_file_extension),
+                                join(working_directory, "gene_trees", "alignments", busco + ".aln")])
 
 
         if args.muscle:
-            print_message("Aligning " + sequence_type + " sequences using MUSCLE with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "alignments_4"))
+            print_message("Aligning " + sequence_type + " sequences using MUSCLE with", threads, "parallel jobs to:", join(working_directory, "gene_trees", "alignments"))
             run_parallel_with_progress(
                 run_muscle,
                 mp_commands,
@@ -378,7 +379,7 @@ def main():
                 "Aligning sequences"
             )
         else:
-            print_message("Aligning " + sequence_type + " sequences using MAFFT (--auto) with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "alignments_4"))
+            print_message("Aligning " + sequence_type + " sequences using MAFFT (--auto) with", threads, "parallel jobs to:", join(working_directory, "gene_trees", "alignments"))
             run_parallel_with_progress(
                 run_mafft,
                 mp_commands,
@@ -386,13 +387,13 @@ def main():
                 "Aligning sequences"
             )
 
-        mkdir("trimmed_alignments_4")
-        print_message("Trimming alignments using trimAL (" + trimal_strategy + ") with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "trimmed_alignments_4"))
+        mkdir("trimmed_alignments")
+        print_message("Trimming alignments using trimAL (" + trimal_strategy + ") with", threads, "parallel jobs to:", join(working_directory, "gene_trees", "trimmed_alignments"))
 
         mp_commands = []
-        for busco in single_copy_buscos_4_species:
-            mp_commands.append([join(working_directory, "gene_trees_single_copy", "alignments_4", busco + ".aln"),
-                                join(working_directory, "gene_trees_single_copy", "trimmed_alignments_4", busco + ".trimmed.aln"),
+        for busco in buscos_for_gene_trees:
+            mp_commands.append([join(working_directory, "gene_trees", "alignments", busco + ".aln"),
+                                join(working_directory, "gene_trees", "trimmed_alignments", busco + ".trimmed.aln"),
                                 trimal_strategy])
 
         run_parallel_with_progress(
@@ -402,16 +403,16 @@ def main():
             "Trimming sequences"
         )
 
-        mkdir("trees_4")
+        mkdir("trees")
 
         if gene_tree_program == "fasttree":
 
             mp_commands = []
-            for busco in single_copy_buscos_4_species:
-                mp_commands.append([join(working_directory, "gene_trees_single_copy", "trimmed_alignments_4", busco + ".trimmed.aln"),
-                                    join(working_directory, "gene_trees_single_copy", "trees_4", busco + ".tree")])
+            for busco in buscos_for_gene_trees:
+                mp_commands.append([join(working_directory, "gene_trees", "trimmed_alignments", busco + ".trimmed.aln"),
+                                    join(working_directory, "gene_trees", "trees", busco + ".tree")])
 
-            print_message("Generating gene trees using fasttree with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "trees_4"))
+            print_message("Generating gene trees using fasttree with", threads, "parallel jobs to:", join(working_directory, "gene_trees", "trees"))
 
             run_parallel_with_progress(
                 run_fasttree,
@@ -420,15 +421,15 @@ def main():
                 "Generating gene trees"
             )
 
-            concatenate_commant = "cat " + join(working_directory, "gene_trees_single_copy", "trees_4", "*.tree") + " > " + join(working_directory, "gene_trees_single_copy", "ALL.tree")
+            concatenate_command = "cat " + join(working_directory, "gene_trees", "trees", "*.tree") + " > " + join(working_directory, "gene_trees", "ALL.tree")
         elif gene_tree_program == "iqtree":
 
             mp_commands = []
-            for busco in single_copy_buscos_4_species:
-                mp_commands.append([join(working_directory, "gene_trees_single_copy", "trimmed_alignments_4", busco + ".trimmed.aln"),
-                                    join(working_directory, "gene_trees_single_copy", "trees_4", busco)])
+            for busco in buscos_for_gene_trees:
+                mp_commands.append([join(working_directory, "gene_trees", "trimmed_alignments", busco + ".trimmed.aln"),
+                                    join(working_directory, "gene_trees", "trees", busco)])
 
-            print_message("Generating gene trees using iqtree with", threads, "parallel jobs to:", join(working_directory, "gene_trees_single_copy", "trees_4"))
+            print_message("Generating gene trees using iqtree with", threads, "parallel jobs to:", join(working_directory, "gene_trees", "trees"))
 
             run_parallel_with_progress(
                 run_iqtree,
@@ -437,12 +438,12 @@ def main():
                 "Generating gene trees"
             )
 
-            concatenate_commant = "cat " + join(working_directory, "gene_trees_single_copy", "trees_4", "*.treefile") + " > " + join(working_directory, "gene_trees_single_copy", "ALL.tree")
+            concatenate_command = "cat " + join(working_directory, "gene_trees", "trees", "*.treefile") + " > " + join(working_directory, "gene_trees", "ALL.tree")
 
 
-        print_message("Concatenating all", len(single_copy_buscos_4_species), "gene trees to:", join(working_directory, "gene_trees_single_copy", "ALL.tree"))
+        print_message("Concatenating all", len(buscos_for_gene_trees), "gene trees to:", join(working_directory, "gene_trees", "ALL.tree"))
 
-        system(concatenate_commant)
+        system(concatenate_command)
 
     print_message("Done")
 
