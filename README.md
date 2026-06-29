@@ -61,44 +61,41 @@ count_buscos.py --help
 ### Usage
 
 ```
-python BUSCO_phylogenomics.py --help
+usage: BUSCO_phylogenomics.py [-h] -i INPUT -o OUTPUT -t THREADS [--supermatrix_only] [--gene_trees_only] [--nt] [-psc PSC] [--mafft] [--muscle] [--trimal_strategy TRIMAL_STRATEGY]
+                              [--missing_character MISSING_CHARACTER] [--gene_tree_program GENE_TREE_PROGRAM] [--min_species_gene_tree MIN_SPECIES_GENE_TREE] [--max_markers MAX_MARKERS]
+                              [--random_seed RANDOM_SEED] [--busco_version_3]
 
-usage: BUSCO_phylogenomics.py [-h] -i INPUT -o OUTPUT -t THREADS [--supermatrix_only] [--gene_trees_only] [-psc PSC] [--trimal_strategy TRIMAL_STRATEGY] [--missing_character MISSING_CHARACTER] [--gene_tree_program GENE_TREE_PROGRAM] [--busco_version_3]
-
-Perform phylogenomic reconstruction using BUSCO proteins
+Perform phylogenomic reconstruction using BUSCO sequences
 
 options:
   -h, --help            show this help message and exit
-  -i INPUT, --input INPUT
-                        Input directory containing completed BUSCO runs
-  -o OUTPUT, --output OUTPUT
-                        Output directory to store results
-  -t THREADS, --threads THREADS
-                        Number of threads to use
+
+Required arguments:
+  -i, --input INPUT     Input directory containing completed BUSCO runs
+  -o, --output OUTPUT   Output directory to store results
+  -t, --threads THREADS Number of threads to use
+
+Optional arguments:
   --supermatrix_only    Don't generate gene trees
   --gene_trees_only     Don't perform supermatrix analysis
-  --nt                  Align nucleotide sequences instead of amino acid
-                        sequences. Does NOT work if miniprot was used to
-                        identify BUSCOs.
-  -psc PSC, --percent_single_copy PSC
-                        BUSCO presence cut-off. BUSCOs that are complete and
-                        single-copy in at least [-psc] percent of species will
-                        be included in the contatenated alignment
-                        [default=100.0]
+  --nt                  Align nucleotide sequences instead of amino acid sequences. Does NOT work if miniprot was used to identify BUSCOs.
+  -psc, --percent_single_copy PSC
+                        BUSCO presence cut-off. BUSCOs that are complete and single-copy in at least [-psc] percent of species will be included in the contatenated alignment [default=100.0]
   --mafft               Use MAFFT for sequence alignment (default)
   --muscle              Use MUSCLE for sequence alignment
   --trimal_strategy TRIMAL_STRATEGY
-                        trimal trimming strategy (automated1, gappyout,
-                        strict, strictplus) [default=automated1]
+                        trimal trimming strategy (automated1, gappyout, strict, strictplus) [default=automated1]
   --missing_character MISSING_CHARACTER
                         Character to represent missing data [default='?']
   --gene_tree_program GENE_TREE_PROGRAM
-                        Program to use to generate gene trees (fasttree or
-                        iqtree) [default=fasttree]
+                        Program to use to generate gene trees (fasttree or iqtree) [default=fasttree]
   --min_species_gene_tree MIN_SPECIES_GENE_TREE
                         Min number of species required to construct a gene tree [default=4]
-  --busco_version_3     Flag to indicate that BUSCO version 3 was used (which
-                        has slighly different output structure)
+  --max_markers MAX_MARKERS
+                        Maximum number of single-copy BUSCOs to include in the supermatrix workflow. If set, markers are randomly subsampled [Disabled by default]
+  --random_seed RANDOM_SEED
+                        Random seed for reproducible marker subsampling when using --max_markers [Disabled by default]
+  --busco_version_3     Flag to indicate that BUSCO version 3 was used (which has slighly different output structure)
 ```
 
 You should move all of your completed BUSCO output directories into the same directory.
@@ -129,6 +126,10 @@ python BUSCO_phylogenomics.py -i BUSCO_results -o output_busco_phylogenomics -t 
 ```
 
 will include all BUSCO families that are complete and single-copy in at least 70% of samples in your concatenated alignment. Missing data will be represented by "?" characters in the concatenated alignment by default. You can specify a different character to represent missing data with the `--missing_character` parameter.
+
+If you want to limit supermatrix size, you can also use `--max_markers` to randomly subsample complete single-copy BUSCO families before alignment/trimming/concatenation.
+
+If you want this subsampling to be reproducible across runs, set `--random_seed` to an integer value (for example: `--max_markers 500 --random_seed 42`).
 
 The provided `count_buscos.py` script can be used to count single-copy BUSCOs and summarise BUSCO presence/absences across
 samples to determine an appropriate cut-off for how much missing data to allow (--percent\_single\_copy).

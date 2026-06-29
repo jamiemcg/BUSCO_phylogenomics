@@ -10,6 +10,7 @@
 
 import argparse
 import multiprocessing as mp
+import random
 from os import listdir, chdir, mkdir, system
 from os.path import abspath, basename, isdir, join
 from time import gmtime, strftime
@@ -23,23 +24,33 @@ from tqdm import tqdm
 def main():
     parser = argparse.ArgumentParser(description="Perform phylogenomic reconstruction using BUSCO sequences")
 
-    parser.add_argument("-i", "--input", type=str, help="Input directory containing completed BUSCO runs", required=True)
-    parser.add_argument("-o", "--output", type=str, help="Output directory to store results", required=True)
-    parser.add_argument("-t", "--threads", type=int, help="Number of threads to use", required=True)
-    parser.add_argument("--supermatrix_only", help="Don't generate gene trees", action="store_true")
-    parser.add_argument("--gene_trees_only", help="Don't perform supermatrix analysis", action="store_true")
-    parser.add_argument("--nt", help="Align nucleotide sequences instead of amino acid sequences. Does NOT work if miniprot was used to identify BUSCOs.", action="store_true")
-    parser.add_argument("-psc", "--percent_single_copy", type=float, action="store", dest="psc", default=100.0,
+    required = parser.add_argument_group("Required arguments")
+
+    required.add_argument("-i", "--input", type=str, help="Input directory containing completed BUSCO runs", required=True)
+    required.add_argument("-o", "--output", type=str, help="Output directory to store results", required=True)
+    required.add_argument("-t", "--threads", type=int, help="Number of threads to use", required=True)
+
+
+    optional = parser.add_argument_group("Optional arguments")
+
+    optional.add_argument("--supermatrix_only", help="Don't generate gene trees", action="store_true")
+    optional.add_argument("--gene_trees_only", help="Don't perform supermatrix analysis", action="store_true")
+    optional.add_argument("--nt", help="Align nucleotide sequences instead of amino acid sequences. Does NOT work if miniprot was used to identify BUSCOs.", action="store_true")
+    optional.add_argument("-psc", "--percent_single_copy", type=float, action="store", dest="psc", default=100.0,
                         help="BUSCO presence cut-off. BUSCOs that are complete and single-copy in at least [-psc] percent of species will be included in the contatenated alignment [default=100.0]")
-    parser.add_argument("--mafft", help="Use MAFFT for sequence alignment (default)", action="store_true")
-    parser.add_argument("--muscle", help="Use MUSCLE for sequence alignment", action="store_true")
-    parser.add_argument("--trimal_strategy", type=str, action="store", dest="trimal_strategy", default="automated1",
+    optional.add_argument("--mafft", help="Use MAFFT for sequence alignment (default)", action="store_true")
+    optional.add_argument("--muscle", help="Use MUSCLE for sequence alignment", action="store_true")
+    optional.add_argument("--trimal_strategy", type=str, action="store", dest="trimal_strategy", default="automated1",
                         help="trimal trimming strategy (automated1, gappyout, strict, strictplus) [default=automated1]")
-    parser.add_argument("--missing_character", type=str, action="store", dest="missing_character", help="Character to represent missing data [default='?']", default="?")
-    parser.add_argument("--gene_tree_program", type=str, action="store", dest="gene_tree_program", default="fasttree", help="Program to use to generate gene trees (fasttree or iqtree) [default=fasttree]")
-    parser.add_argument("--min_species_gene_tree", type=int, default=4, help="Min number of species required to construct a gene tree [default=4]")
-    parser.add_argument("--busco_version_3", action="store_true", help="Flag to indicate that BUSCO version 3 was used (which has slighly different output structure)")
-    
+    optional.add_argument("--missing_character", type=str, action="store", dest="missing_character", help="Character to represent missing data [default='?']", default="?")
+    optional.add_argument("--gene_tree_program", type=str, action="store", dest="gene_tree_program", default="fasttree", help="Program to use to generate gene trees (fasttree or iqtree) [default=fasttree]")
+    optional.add_argument("--min_species_gene_tree", type=int, default=4, help="Min number of species required to construct a gene tree [default=4]")
+    optional.add_argument("--max_markers", type=int, default=None,
+                        help="Maximum number of single-copy BUSCOs to include in the supermatrix workflow. If set, markers are randomly subsampled [Disabled by default]")
+    optional.add_argument("--random_seed", type=int, default=None,
+                        help="Random seed for reproducible marker subsampling when using --max_markers [Disabled by default]")
+    optional.add_argument("--busco_version_3", action="store_true", help="Flag to indicate that BUSCO version 3 was used (which has slighly different output structure)")
+
     args = parser.parse_args()
 
     print_message("Starting BUSCO Phylogenomics Pipeline")
@@ -82,6 +93,10 @@ def main():
 
     if args.mafft and args.muscle:
         print_message("ERROR. You cannot select both --mafft and --muscle")
+        sys.exit()
+
+    if args.max_markers is not None and args.max_markers <= 0:
+        print_message("ERROR. --max_markers must be a positive integer")
         sys.exit()
 
     if args.nt:
@@ -202,6 +217,16 @@ def main():
             print_message("Identified", len(single_copy_buscos), "BUSCO sequences that are complete and single-copy in all species:")
         else:
             print_message("Identified", len(single_copy_buscos), "BUSCO sequences that are complete and single-copy in at least", args.psc, "percent of species:")
+
+        if args.max_markers is not None and len(single_copy_buscos) > args.max_markers:
+            if args.random_seed is None:
+                print_message("Randomly subsampling", args.max_markers, "of", len(single_copy_buscos), "single-copy BUSCO markers for supermatrix analysis")
+                single_copy_buscos = random.sample(single_copy_buscos, args.max_markers)
+            else:
+                print_message("Randomly subsampling", args.max_markers, "of", len(single_copy_buscos), "single-copy BUSCO markers for supermatrix analysis using random seed", args.random_seed)
+                seeded_rng = random.Random(args.random_seed)
+                single_copy_buscos = seeded_rng.sample(single_copy_buscos, args.max_markers)
+
         print(",".join(single_copy_buscos))
         print()
 
