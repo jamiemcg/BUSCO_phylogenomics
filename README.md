@@ -37,7 +37,7 @@ These should be available from your `$PATH`.
 You can install the BUSCO_Phylogenomics package with Conda from the Bioconda channel:
 
 ```
-conda create -n BUSCO_phylogenomics -c bioconda busco_phylogenomics
+conda create -n BUSCO_phylogenomics -c bioconda -c conda-forge busco_phylogenomics
 conda activate BUSCO_phylogenomics
 
 BUSCO_phylogenomics.py --help
